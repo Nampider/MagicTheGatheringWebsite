@@ -1,1 +1,9 @@
+com/project/magicWebsite/dto/CardSearchResponse.class
+com/project/magicWebsite/config/R2dbcConfig.class
 com/project/magicWebsite/MagicWebsiteApplication.class
+com/project/magicWebsite/dto/StoreAvailabilityResponse.class
+com/project/magicWebsite/controller/CardController.class
+com/project/magicWebsite/dto/CardSearchResponse$CardSearchResponseBuilder.class
+com/project/magicWebsite/dto/StoreAvailabilityResponse$StoreAvailabilityResponseBuilder.class
+com/project/magicWebsite/dto/StoreResponse$StoreResponseBuilder.class
+com/project/magicWebsite/dto/StoreResponse.class
