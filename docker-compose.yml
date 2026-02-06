@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: magic-postgres
+    environment:
+      POSTGRES_DB: MagicTheGathering
+      POSTGRES_USER: crsnam
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    image: magic-backend-docker:0.1.RELEASE
+    container_name: magic-backend
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/MagicTheGathering
+      SPRING_R2DBC_USERNAME: crsnam
+      SPRING_R2DBC_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
