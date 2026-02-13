@@ -6,6 +6,7 @@ com/project/magicWebsite/processor/CardProcessor.class
 com/project/magicWebsite/service/CardService.class
 com/project/magicWebsite/dto/StoreInventoryResponse.class
 com/project/magicWebsite/dao/StoreEntity.class
+com/project/magicWebsite/config/CorsConfig.class
 com/project/magicWebsite/service/StoreService.class
 com/project/magicWebsite/mapper/CardStoreMapper.class
 com/project/magicWebsite/controller/StoreController.class
