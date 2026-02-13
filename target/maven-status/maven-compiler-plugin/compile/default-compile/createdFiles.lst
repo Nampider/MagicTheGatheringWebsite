@@ -1,4 +1,5 @@
 com/project/magicWebsite/dto/CardSearchResponse.class
+com/project/magicWebsite/config/SecurityConfig.class
 com/project/magicWebsite/controller/CardController.class
 com/project/magicWebsite/dao/CardEntity.class
 com/project/magicWebsite/repository/StoreRepository.class
@@ -6,7 +7,6 @@ com/project/magicWebsite/processor/CardProcessor.class
 com/project/magicWebsite/service/CardService.class
 com/project/magicWebsite/dto/StoreInventoryResponse.class
 com/project/magicWebsite/dao/StoreEntity.class
-com/project/magicWebsite/config/CorsConfig.class
 com/project/magicWebsite/service/StoreService.class
 com/project/magicWebsite/mapper/CardStoreMapper.class
 com/project/magicWebsite/controller/StoreController.class
