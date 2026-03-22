@@ -15,16 +15,16 @@ public class CardService {
     public CardService(CardRepository cardRepository) {
         this.cardRepository = cardRepository;
     }
+//
+//    public Flux<CardEntity> getAllCards() {
+//        return cardRepository.findAll();
+//    }
+//
+//    public Mono<CardEntity> getCardById(String uuid){
+//        return cardRepository.findById(UUID.fromString(uuid));
+//    }
 
-    public Flux<CardEntity> getAllCards() {
-        return cardRepository.findAll();
-    }
-
-    public Mono<CardEntity> getCardById(String uuid){
-        return cardRepository.findById(UUID.fromString(uuid));
-    }
-
-    public Mono<CardEntity> getCardByName(String cardName) {
-        return cardRepository.findByName(cardName);
+    public Flux<CardEntity> getCardByName(String cardName) {
+        return cardRepository.searchByNameNormalized(cardName);
     }
 }

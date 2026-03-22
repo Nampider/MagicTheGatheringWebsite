@@ -1,0 +1,49 @@
+package com.project.magicWebsite.repository.impl;
+
+import com.project.magicWebsite.dao.CardEntity;
+import com.project.magicWebsite.repository.CardRepository;
+import org.springframework.r2dbc.core.DatabaseClient;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+@Repository
+public class CardRepositoryImpl implements CardRepository {
+    private final DatabaseClient databaseClient;
+
+    public CardRepositoryImpl(DatabaseClient databaseClient) {
+        this.databaseClient = databaseClient;
+    }
+
+    @Override
+    public Mono<CardEntity> findByName(String name) {
+        return null;
+    }
+
+    @Override
+    public Flux<CardEntity> searchByNameNormalized(String input) {
+
+        if (input == null || input.isBlank()) {
+            return Flux.empty();
+        }
+
+        String sql = """
+            SELECT id, name, image_uri
+            FROM cards
+            WHERE regexp_replace(lower(name), '[^a-z0-9]', '', 'g')
+                  LIKE '%' || regexp_replace(lower(:input), '[^a-z0-9]', '', 'g') || '%'
+            LIMIT 20
+        """;
+
+        return databaseClient.sql(sql)
+                .bind("input", input)
+                .map((row, metadata) -> {
+                    CardEntity card = new CardEntity();
+                    card.setId(row.get("id", java.util.UUID.class));
+                    card.setName(row.get("name", String.class));
+                    card.setImage_uri(row.get("image_uri", String.class)); // make sure this matches your entity
+                    return card;
+                })
+                .all();
+    }
+}

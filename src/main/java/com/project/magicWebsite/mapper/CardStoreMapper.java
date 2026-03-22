@@ -2,9 +2,9 @@ package com.project.magicWebsite.mapper;
 
 import com.project.magicWebsite.dao.CardEntity;
 import com.project.magicWebsite.dao.StoreEntity;
-import com.project.magicWebsite.dto.CardSearchResponse;
-import com.project.magicWebsite.dto.StoreInventoryResponse;
-import com.project.magicWebsite.dto.StoreLocationResponse;
+import com.project.magicWebsite.dto.response.CardSearchResponse;
+import com.project.magicWebsite.dto.response.StoreInventoryResponse;
+import com.project.magicWebsite.dto.response.StoreLocationResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
