@@ -26,7 +26,7 @@ public class CardController {
     }
 
     @GetMapping("/mtgStore/cards/{cardName}")
-    public ResponseEntity<Flux<CardSearchResponse>> getCardSearchResponse(
+    public ResponseEntity<Mono<CardSearchResponse>> getCardSearchResponse(
             @PathVariable String cardName
     ) {
         return ResponseEntity.ok(cardProcessor.getCardResponse(cardName));

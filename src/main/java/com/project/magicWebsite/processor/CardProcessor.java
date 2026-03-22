@@ -25,12 +25,12 @@ public class CardProcessor {
         this.cardStoreMapper = cardStoreMapper;
     }
 
-    public Flux<CardSearchResponse> getCardResponse(String cardName) {
+    public Mono<CardSearchResponse> getCardResponse(String cardName) {
         return cardService.getCardByName(cardName).flatMap(card -> {
             return storeService.getStoreByName("Mana Vault Trading").map(store -> {
                 return cardStoreMapper.cardSearchResponseMapper(card, store);
             });
-        });
+        }).single();
     }
 
     public Mono<RecommendedCardNameListResponse> getRecommendedCardListResponse(String cardName) {
