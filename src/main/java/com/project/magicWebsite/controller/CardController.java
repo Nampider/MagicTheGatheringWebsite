@@ -1,5 +1,6 @@
 package com.project.magicWebsite.controller;
 
+import com.project.magicWebsite.dao.CardEntity;
 import com.project.magicWebsite.dto.request.MassEntryRequest;
 import com.project.magicWebsite.dto.response.CardSearchResponse;
 import com.project.magicWebsite.dto.response.MassEntryResponse;
@@ -26,7 +27,7 @@ public class CardController {
     }
 
     @GetMapping("/mtgStore/cards/{cardName}")
-    public ResponseEntity<Mono<CardSearchResponse>> getCardSearchResponse(
+    public ResponseEntity<Flux<CardSearchResponse>> getCardSearchResponse(
             @PathVariable String cardName
     ) {
         return ResponseEntity.ok(cardProcessor.getCardResponse(cardName));

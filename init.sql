@@ -1,4 +1,3 @@
-```sql
 --
 -- Enable Extensions
 --
@@ -327,5 +326,3 @@ VALUES
     'CA',
     'USA'
 );
-
-```

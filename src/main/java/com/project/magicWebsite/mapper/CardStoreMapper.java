@@ -11,28 +11,28 @@ import java.util.List;
 
 @Component
 public class CardStoreMapper {
-    public CardSearchResponse cardSearchResponseMapper(CardEntity cardEntity, StoreEntity storeEntity) {
+    public CardSearchResponse cardSearchResponseMapper(CardEntity cardEntity) {
         CardSearchResponse cardSearchResponse = new CardSearchResponse();
         cardSearchResponse.setCardName(cardEntity.getName());
         cardSearchResponse.setCardRarity(cardEntity.getRarity());
         cardSearchResponse.setCardId(cardEntity.getId().toString());
-        cardSearchResponse.setCardImageUrl(cardEntity.getImage_uri());
-        cardSearchResponse.setSetName(cardEntity.getSet_name());
+        cardSearchResponse.setCardImageUrl(cardEntity.getImageUri());
+        cardSearchResponse.setSetName(cardEntity.getSetName());
 
-        StoreInventoryResponse storeInventoryResponse = new StoreInventoryResponse();
-        storeInventoryResponse.setStoreId(storeEntity.getId().toString());
-        storeInventoryResponse.setStoreName(storeEntity.getName());
-//        storeInventoryResponse.setFoil(storeEntity.getFoil());
-
-        StoreLocationResponse storeLocationResponse = new StoreLocationResponse();
-        storeLocationResponse.setCity(storeEntity.getCity());
-        storeLocationResponse.setLatitude(storeEntity.getLatitude());
-        storeLocationResponse.setLongitude(storeEntity.getLongitude());
-        storeLocationResponse.setState(storeEntity.getState());
-        storeLocationResponse.setCountry(storeEntity.getCountry());
-
-        storeInventoryResponse.setStoreLocation(storeLocationResponse);
-        cardSearchResponse.setStoreInventoryResponse(List.of(storeInventoryResponse));
+//        StoreInventoryResponse storeInventoryResponse = new StoreInventoryResponse();
+//        storeInventoryResponse.setStoreId(storeEntity.getId().toString());
+//        storeInventoryResponse.setStoreName(storeEntity.getName());
+////        storeInventoryResponse.setFoil(storeEntity.getFoil());
+//
+//        StoreLocationResponse storeLocationResponse = new StoreLocationResponse();
+//        storeLocationResponse.setCity(storeEntity.getCity());
+//        storeLocationResponse.setLatitude(storeEntity.getLatitude());
+//        storeLocationResponse.setLongitude(storeEntity.getLongitude());
+//        storeLocationResponse.setState(storeEntity.getState());
+//        storeLocationResponse.setCountry(storeEntity.getCountry());
+//
+//        storeInventoryResponse.setStoreLocation(storeLocationResponse);
+//        cardSearchResponse.setStoreInventoryResponse(List.of(storeInventoryResponse));
 
         return cardSearchResponse;
     }

@@ -12,7 +12,8 @@ public class MassEntryMapper {
         return MassCardsResponse.builder()
                 .cardName(cardEntity.getName())
                 .cardRarity(cardEntity.getRarity())
-                .cardImageUrl(cardEntity.getImage_uri())
+                .cardImageUrl(cardEntity.getImageUri())
+                .setName(cardEntity.getSetName())
                 .cardId(String.valueOf(cardEntity.getId())).build();
     }
 }

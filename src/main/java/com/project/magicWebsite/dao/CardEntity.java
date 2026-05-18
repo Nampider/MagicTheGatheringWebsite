@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
@@ -13,26 +14,34 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardEntity {
+
     @Id
     private UUID id;
 
-    private UUID scryfall_id;
+    @Column("scryfall_id")
+    private UUID scryfallId;
 
     private String name;
 
-    private String card_state;
+    @Column("card_state")
+    private String cardState;
 
-    private String set_code;
+    @Column("set_code")
+    private String setCode;
 
-    private String set_name;
+    @Column("set_name")
+    private String setName;
 
     private String rarity;
 
-    private String type_line;
+    @Column("type_line")
+    private String typeLine;
 
     private String artist;
 
-    private String collector_number;
+    @Column("collector_number")
+    private String collectorNumber;
 
-    private String image_uri;
+    @Column("image_uri")
+    private String imageUri;
 }

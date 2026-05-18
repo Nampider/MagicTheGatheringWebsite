@@ -1,5 +1,6 @@
 package com.project.magicWebsite.processor;
 
+import com.project.magicWebsite.dao.CardEntity;
 import com.project.magicWebsite.dto.response.CardSearchResponse;
 import com.project.magicWebsite.dto.response.RecommendedCardNameListResponse;
 import com.project.magicWebsite.mapper.CardStoreMapper;
@@ -25,12 +26,12 @@ public class CardProcessor {
         this.cardStoreMapper = cardStoreMapper;
     }
 
-    public Mono<CardSearchResponse> getCardResponse(String cardName) {
-        return cardService.getCardByName(cardName).flatMap(card -> {
-            return storeService.getStoreByName("Mana Vault Trading").map(store -> {
-                return cardStoreMapper.cardSearchResponseMapper(card, store);
-            });
-        }).single();
+    public Flux<CardSearchResponse> getCardResponse(String cardName) {
+        return cardService.getCardByName(cardName).map(card -> {
+//            return storeService.getStoreByName("Mana Vault Trading").map(store -> {
+                return cardStoreMapper.cardSearchResponseMapper(card);
+//            });
+        });
     }
 
     public Mono<RecommendedCardNameListResponse> getRecommendedCardListResponse(String cardName) {

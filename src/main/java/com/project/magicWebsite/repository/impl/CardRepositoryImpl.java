@@ -28,12 +28,18 @@ public class CardRepositoryImpl implements CardRepository {
         }
 
         String sql = """
-            SELECT id, name, image_uri
+            SELECT
+                id,
+                name,
+                set_name,
+                rarity,
+                image_uri
             FROM cards
             WHERE regexp_replace(lower(name), '[^a-z0-9]', '', 'g')
                   LIKE '%' || regexp_replace(lower(:input), '[^a-z0-9]', '', 'g') || '%'
             LIMIT 20
         """;
+
 
         return databaseClient.sql(sql)
                 .bind("input", input)
@@ -41,7 +47,9 @@ public class CardRepositoryImpl implements CardRepository {
                     CardEntity card = new CardEntity();
                     card.setId(row.get("id", java.util.UUID.class));
                     card.setName(row.get("name", String.class));
-                    card.setImage_uri(row.get("image_uri", String.class)); // make sure this matches your entity
+                    card.setSetName(row.get("set_name", String.class));
+                    card.setRarity(row.get("rarity", String.class));
+                    card.setImageUri(row.get("image_uri", String.class)); // make sure this matches your entity
                     return card;
                 })
                 .all();
