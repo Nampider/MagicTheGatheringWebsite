@@ -4,11 +4,12 @@ import psycopg2
 from psycopg2.extras import execute_batch
 
 DB_CONFIG = {
-    "host": "localhost",
-    "database": "MagicTheGathering",
+    "host": "127.0.0.1",
+    "database": "marketplace_db",
     "user": "crsnam",
     "password": "postgres",
-    "port": 5433
+    "port": 5433,
+    "options": "-c search_path=cards_schema"
 }
 
 def load_cards():

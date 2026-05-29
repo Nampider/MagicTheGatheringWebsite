@@ -27,6 +27,11 @@ public class CardRepositoryImpl implements CardRepository {
             return Flux.empty();
         }
 
+        String normalizedInput = "%" +
+                input.toLowerCase()
+                        .replaceAll("[^a-z0-9]", "") +
+                "%";
+
         String sql = """
             SELECT
                 id,
@@ -35,21 +40,26 @@ public class CardRepositoryImpl implements CardRepository {
                 rarity,
                 image_uri
             FROM cards
-            WHERE regexp_replace(lower(name), '[^a-z0-9]', '', 'g')
-                  LIKE '%' || regexp_replace(lower(:input), '[^a-z0-9]', '', 'g') || '%'
+            WHERE regexp_replace(
+                    lower(name),
+                    '[^a-z0-9]',
+                    '',
+                    'g'
+                  ) LIKE :input
             LIMIT 20
-        """;
-
+            """;
 
         return databaseClient.sql(sql)
-                .bind("input", input)
+                .bind("input", normalizedInput)
                 .map((row, metadata) -> {
                     CardEntity card = new CardEntity();
+
                     card.setId(row.get("id", java.util.UUID.class));
                     card.setName(row.get("name", String.class));
                     card.setSetName(row.get("set_name", String.class));
                     card.setRarity(row.get("rarity", String.class));
-                    card.setImageUri(row.get("image_uri", String.class)); // make sure this matches your entity
+                    card.setImageUri(row.get("image_uri", String.class));
+
                     return card;
                 })
                 .all();
