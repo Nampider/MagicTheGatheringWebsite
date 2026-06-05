@@ -1,8 +1,11 @@
 package com.project.magicWebsite.provider;
 
-import com.project.magicWebsite.dto.response.CardSearchResponse;
-import reactor.core.publisher.Flux;
+import com.project.magicWebsite.dao.CardEntity;
+import com.project.magicWebsite.dto.response.StoreInventoryResponse;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface StoreInventoryProvider {
-    Flux<CardSearchResponse> getCards();
+    Mono<List<StoreInventoryResponse>> getInventoryForCard(CardEntity cardEntity);
 }

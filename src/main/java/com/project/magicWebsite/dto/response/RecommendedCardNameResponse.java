@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,4 +18,7 @@ public class RecommendedCardNameResponse {
 
     @JsonProperty("imageUri")
     public String cardImageUrl;
+
+    @JsonProperty("stores")
+    public List<StoreInventoryResponse> storeInventoryResponse;
 }

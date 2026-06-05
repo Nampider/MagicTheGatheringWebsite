@@ -2,39 +2,70 @@ package com.project.magicWebsite.processor;
 
 import com.project.magicWebsite.dao.CardEntity;
 import com.project.magicWebsite.dto.response.CardSearchResponse;
+import com.project.magicWebsite.dto.response.RecommendedCardNameResponse;
 import com.project.magicWebsite.dto.response.RecommendedCardNameListResponse;
+import com.project.magicWebsite.dto.response.StoreInventoryResponse;
 import com.project.magicWebsite.mapper.CardStoreMapper;
+import com.project.magicWebsite.provider.StoreInventoryProvider;
 import com.project.magicWebsite.service.CardService;
-import com.project.magicWebsite.service.StoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 @Slf4j
 public class CardProcessor {
     private final CardService cardService;
 
-    private final StoreService storeService;
-
     private final CardStoreMapper cardStoreMapper;
 
-    public CardProcessor(CardService cardService, StoreService storeService, CardStoreMapper cardStoreMapper) {
+    private final StoreInventoryProvider storeInventoryProvider;
+
+    public CardProcessor(
+            CardService cardService,
+            CardStoreMapper cardStoreMapper,
+            StoreInventoryProvider storeInventoryProvider
+    ) {
         this.cardService = cardService;
-        this.storeService = storeService;
         this.cardStoreMapper = cardStoreMapper;
+        this.storeInventoryProvider = storeInventoryProvider;
     }
 
     public Flux<CardSearchResponse> getCardResponse(String cardName) {
-        return cardService.getCardByName(cardName).map(card -> {
-//            return storeService.getStoreByName("Mana Vault Trading").map(store -> {
-                return cardStoreMapper.cardSearchResponseMapper(card);
-//            });
-        });
+        return cardService.getCardByName(cardName)
+                .flatMap(this::mapCardWithStoreInventory);
     }
 
     public Mono<RecommendedCardNameListResponse> getRecommendedCardListResponse(String cardName) {
-        return Mono.just(new RecommendedCardNameListResponse());
+        return cardService.getCardByName(cardName)
+                .flatMap(card -> storeInventoryProvider.getInventoryForCard(card)
+                        .map(storeInventoryResponses -> RecommendedCardNameResponse.builder()
+                                .cardName(card.getName())
+                                .cardImageUrl(card.getImageUri())
+                                .storeInventoryResponse(storeInventoryResponses)
+                                .build()))
+                .take(10)
+                .collectList()
+                .map(recommendedCards -> RecommendedCardNameListResponse.builder()
+                        .massCardsResponseList(recommendedCards)
+                        .build());
+    }
+
+    private Mono<CardSearchResponse> mapCardWithStoreInventory(CardEntity card) {
+        return storeInventoryProvider.getInventoryForCard(card)
+                .map(storeInventoryResponses -> buildCardSearchResponse(card, storeInventoryResponses));
+    }
+
+    private CardSearchResponse buildCardSearchResponse(
+            CardEntity card,
+            List<StoreInventoryResponse> storeInventoryResponses
+    ) {
+        CardSearchResponse cardSearchResponse = cardStoreMapper.cardSearchResponseMapper(card);
+        cardSearchResponse.setStoreInventoryResponse(storeInventoryResponses);
+
+        return cardSearchResponse;
     }
 }

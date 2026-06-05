@@ -20,6 +20,8 @@
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/processor/CardProcessor.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/processor/MassEntryProcessor.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/processor/StoreProcessor.java
+/Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/provider/DatabaseStoreInventoryProvider.java
+/Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/provider/MockStoreInventoryProvider.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/provider/StoreInventoryProvider.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/repository/CardRepository.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/repository/StoreRepository.java

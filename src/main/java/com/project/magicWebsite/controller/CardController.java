@@ -33,7 +33,7 @@ public class CardController {
         return ResponseEntity.ok(cardProcessor.getCardResponse(cardName));
     }
 
-    @PostMapping("/mtgStore/massCards")
+    @PostMapping("/mtgStore/cards/{cardName}")
     public Mono<MassEntryResponse> getMassEntry(@RequestBody MassEntryRequest massEntryRequest) {
         return massEntryProcessor.getMassEntryResponse(massEntryRequest);
     }

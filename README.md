@@ -173,6 +173,33 @@ Core features being developed:
 
 ---
 
+# Local Docker Automation
+
+Use the helper script to package the Spring app, rebuild the website Docker image when app files changed, and restart the infrastructure Docker Compose stack:
+
+```bash
+./scripts/restart-website-stack.sh
+```
+
+Common options:
+
+```bash
+./scripts/restart-website-stack.sh --no-cache
+./scripts/restart-website-stack.sh --push
+./scripts/restart-website-stack.sh --seed
+./scripts/restart-website-stack.sh --push --seed --no-cache
+```
+
+The script builds `kriznn/magicthegatheringwebsite:latest` by default and uses the infrastructure repo at `../MagicTheGatheringInfrastructure`. Override those when needed:
+
+```bash
+IMAGE_NAME=yourrepo/magicthegatheringwebsite:latest \
+INFRA_DIR=/path/to/MagicTheGatheringInfrastructure \
+./scripts/restart-website-stack.sh --push
+```
+
+---
+
 # Vision
 
 Magic Marketplace aims to become a modern local-first ecosystem for trading card players and stores by bridging the gap between online convenience and local game shop communities.

@@ -2,7 +2,9 @@ com/project/magicWebsite/dto/request/MassCardsRequest.class
 com/project/magicWebsite/processor/CardProcessor.class
 com/project/magicWebsite/dto/response/MassEntryResponse.class
 com/project/magicWebsite/service/CardService.class
+com/project/magicWebsite/provider/MockStoreInventoryProvider.class
 com/project/magicWebsite/mapper/CardStoreMapper.class
+com/project/magicWebsite/provider/DatabaseStoreInventoryProvider.class
 com/project/magicWebsite/dto/response/StoreInventoryResponse$StoreInventoryResponseBuilder.class
 com/project/magicWebsite/config/R2dbcConfig.class
 com/project/magicWebsite/dto/response/RecommendedCardNameResponse$RecommendedCardNameResponseBuilder.class
