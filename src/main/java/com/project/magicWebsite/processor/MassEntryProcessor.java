@@ -41,7 +41,7 @@ public class MassEntryProcessor {
     }
 
     private Mono<MassCardsResponse> mapMassCardWithStoreInventory(CardEntity cardEntity) {
-        return storeInventoryProvider.getInventoryForCard(cardEntity)
+        return storeInventoryProvider.getInventoryForCard(cardEntity, null, null)
                 .map(storeInventoryResponses -> massEntryMapper.mapToMassCardsResponse(
                         cardEntity,
                         storeInventoryResponses

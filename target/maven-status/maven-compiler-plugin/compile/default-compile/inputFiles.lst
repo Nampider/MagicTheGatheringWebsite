@@ -3,6 +3,7 @@
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/config/R2dbcConfig.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/config/SecurityConfig.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/controller/CardController.java
+/Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/controller/LocationController.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/controller/StoreController.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/dao/CardEntity.java
 /Users/crsnam/Desktop/personal/personal_code/magic-website/magicthegatheringwebsite/src/main/java/com/project/magicWebsite/dao/StoreEntity.java

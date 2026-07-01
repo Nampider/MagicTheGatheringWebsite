@@ -264,7 +264,6 @@ def build_mock_inventory_rows(card_rows, store_ids_by_name):
 
         for store_index, store_name in enumerate(selected_store_names):
             price_seed = card_seed + (store_index * 31)
-            distance_km = round(card_random.uniform(1.5, 45.0), 1)
             price = round(2 + (price_seed % 45) + ((price_seed % 100) / 100), 2)
             quantity = card_random.randint(1, 12)
             condition = conditions[card_random.randrange(len(conditions))]
@@ -274,7 +273,6 @@ def build_mock_inventory_rows(card_rows, store_ids_by_name):
                 (
                     card_id,
                     store_ids_by_name[store_name],
-                    distance_km,
                     price,
                     quantity,
                     condition,
@@ -299,15 +297,13 @@ def seed_mock_inventory(cursor):
         INSERT INTO store_inventory (
             card_id,
             store_id,
-            distance_km,
             price,
             quantity,
             condition,
             foil
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s)
         ON CONFLICT (card_id, store_id, condition, foil) DO UPDATE SET
-            distance_km = EXCLUDED.distance_km,
             price = EXCLUDED.price,
             quantity = EXCLUDED.quantity
     """

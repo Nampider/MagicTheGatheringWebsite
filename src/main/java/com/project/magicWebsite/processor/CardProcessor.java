@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Component
@@ -34,14 +35,18 @@ public class CardProcessor {
         this.storeInventoryProvider = storeInventoryProvider;
     }
 
-    public Flux<CardSearchResponse> getCardResponse(String cardName) {
+    public Flux<CardSearchResponse> getCardResponse(
+            String cardName,
+            BigDecimal userLatitude,
+            BigDecimal userLongitude
+    ) {
         return cardService.getCardByName(cardName)
-                .flatMap(this::mapCardWithStoreInventory);
+                .flatMap(card -> mapCardWithStoreInventory(card, userLatitude, userLongitude));
     }
 
     public Mono<RecommendedCardNameListResponse> getRecommendedCardListResponse(String cardName) {
         return cardService.getCardByName(cardName)
-                .flatMap(card -> storeInventoryProvider.getInventoryForCard(card)
+                .flatMap(card -> storeInventoryProvider.getInventoryForCard(card, null, null)
                         .map(storeInventoryResponses -> RecommendedCardNameResponse.builder()
                                 .cardName(card.getName())
                                 .cardImageUrl(card.getImageUri())
@@ -54,8 +59,12 @@ public class CardProcessor {
                         .build());
     }
 
-    private Mono<CardSearchResponse> mapCardWithStoreInventory(CardEntity card) {
-        return storeInventoryProvider.getInventoryForCard(card)
+    private Mono<CardSearchResponse> mapCardWithStoreInventory(
+            CardEntity card,
+            BigDecimal userLatitude,
+            BigDecimal userLongitude
+    ) {
+        return storeInventoryProvider.getInventoryForCard(card, userLatitude, userLongitude)
                 .map(storeInventoryResponses -> buildCardSearchResponse(card, storeInventoryResponses));
     }
 

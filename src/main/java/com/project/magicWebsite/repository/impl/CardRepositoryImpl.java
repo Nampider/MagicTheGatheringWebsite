@@ -46,6 +46,7 @@ public class CardRepositoryImpl implements CardRepository {
                     '',
                     'g'
                   ) LIKE :input
+              AND name NOT LIKE '%//%'
             LIMIT 20
             """;
 

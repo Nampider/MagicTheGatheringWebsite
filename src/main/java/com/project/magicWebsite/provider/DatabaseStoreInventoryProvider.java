@@ -20,7 +20,25 @@ public class DatabaseStoreInventoryProvider implements StoreInventoryProvider {
     }
 
     @Override
-    public Mono<List<StoreInventoryResponse>> getInventoryForCard(CardEntity cardEntity) {
+    public Mono<List<StoreInventoryResponse>> getInventoryForCard(
+            CardEntity cardEntity,
+            BigDecimal userLatitude,
+            BigDecimal userLongitude
+    ) {
+        boolean hasUserLocation = userLatitude != null && userLongitude != null;
+        String distanceExpression = hasUserLocation
+                ? """
+                    CAST(
+                        6371.0 * 2 * ASIN(SQRT(
+                            POWER(SIN(RADIANS((s.latitude - :userLatitude) / 2)), 2)
+                            + COS(RADIANS(:userLatitude)) * COS(RADIANS(s.latitude))
+                            * POWER(SIN(RADIANS((s.longitude - :userLongitude) / 2)), 2)
+                        ))
+                        AS NUMERIC
+                    ) AS distance_km
+                    """
+                : "NULL::NUMERIC AS distance_km";
+
         String sql = """
                 SELECT
                     s.id AS store_id,
@@ -30,7 +48,7 @@ public class DatabaseStoreInventoryProvider implements StoreInventoryProvider {
                     s.city,
                     s.state,
                     s.country,
-                    si.distance_km,
+                    %s,
                     si.price,
                     si.quantity,
                     si.condition,
@@ -39,10 +57,18 @@ public class DatabaseStoreInventoryProvider implements StoreInventoryProvider {
                 JOIN stores s ON s.id = si.store_id
                 WHERE si.card_id = :cardId
                 ORDER BY si.price ASC, s.name ASC
-                """;
+                """.formatted(distanceExpression);
 
-        return databaseClient.sql(sql)
-                .bind("cardId", cardEntity.getId())
+        DatabaseClient.GenericExecuteSpec query = databaseClient.sql(sql)
+                .bind("cardId", cardEntity.getId());
+
+        if (hasUserLocation) {
+            query = query
+                    .bind("userLatitude", userLatitude)
+                    .bind("userLongitude", userLongitude);
+        }
+
+        return query
                 .map((row, metadata) -> StoreInventoryResponse.builder()
                         .storeId(String.valueOf(row.get("store_id", UUID.class)))
                         .storeName(row.get("store_name", String.class))

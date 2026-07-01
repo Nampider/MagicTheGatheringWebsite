@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/magic")
 @Slf4j
@@ -28,9 +30,11 @@ public class CardController {
 
     @GetMapping("/mtgStore/cards/{cardName}")
     public ResponseEntity<Flux<CardSearchResponse>> getCardSearchResponse(
-            @PathVariable String cardName
+            @PathVariable String cardName,
+            @RequestParam(required = false) BigDecimal latitude,
+            @RequestParam(required = false) BigDecimal longitude
     ) {
-        return ResponseEntity.ok(cardProcessor.getCardResponse(cardName));
+        return ResponseEntity.ok(cardProcessor.getCardResponse(cardName, latitude, longitude));
     }
 
     @PostMapping("/mtgStore/cards/{cardName}")
