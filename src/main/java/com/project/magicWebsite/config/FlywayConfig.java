@@ -25,6 +25,7 @@ public class FlywayConfig {
                 .schemas("cards_schema")        // use a separate schema, not public
                 .defaultSchema("cards_schema")
                 .createSchemas(true)
+                .baselineOnMigrate(true)
                 .load();
     }
 }

@@ -5,13 +5,15 @@ import psycopg2
 
 from psycopg2.extras import execute_batch
 
+DB_SCHEMA = "cards_schema"
+
 DB_CONFIG = {
     "host": "127.0.0.1",
     "database": "marketplace_db",
     "user": "crsnam",
     "password": "postgres",
     "port": 5433,
-    "options": "-c search_path=cards_schema"
+    "options": f"-c search_path={DB_SCHEMA}"
 }
 
 MOCK_STORES = [
@@ -145,6 +147,31 @@ def format_cards(cards):
         )
 
     return formatted_cards
+
+
+def ensure_schema(cursor):
+
+    cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {DB_SCHEMA}")
+    cursor.execute(f"SET search_path TO {DB_SCHEMA}")
+
+
+def ensure_cards_table(cursor):
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cards (
+            id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            scryfall_id      UUID UNIQUE,
+            name             TEXT NOT NULL,
+            card_state       TEXT,
+            set_code         TEXT,
+            set_name         TEXT,
+            rarity           TEXT,
+            type_line        TEXT,
+            artist           TEXT,
+            collector_number TEXT,
+            image_uri        TEXT
+        )
+    """)
 
 
 def ensure_store_inventory_tables(cursor):
@@ -326,6 +353,8 @@ def bulk_insert_cards(cards):
 
     cursor = connection.cursor()
 
+    ensure_schema(cursor)
+    ensure_cards_table(cursor)
     ensure_store_inventory_tables(cursor)
 
     query = """

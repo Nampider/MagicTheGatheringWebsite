@@ -1,4 +1,6 @@
-CREATE TABLE stores (
+SET search_path TO cards_schema;
+
+CREATE TABLE IF NOT EXISTS stores (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name        TEXT NOT NULL UNIQUE,
     latitude    NUMERIC,
@@ -13,7 +15,7 @@ CREATE TABLE stores (
     website     TEXT
 );
 
-CREATE TABLE store_inventory (
+CREATE TABLE IF NOT EXISTS store_inventory (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     card_id    UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
     store_id   UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
@@ -25,5 +27,5 @@ CREATE TABLE store_inventory (
     UNIQUE (card_id, store_id, condition, foil)
 );
 
-CREATE INDEX idx_store_inventory_card_id ON store_inventory(card_id);
-CREATE INDEX idx_store_inventory_store_id ON store_inventory(store_id);
+CREATE INDEX IF NOT EXISTS idx_store_inventory_card_id ON store_inventory(card_id);
+CREATE INDEX IF NOT EXISTS idx_store_inventory_store_id ON store_inventory(store_id);

@@ -2,10 +2,12 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$APP_DIR/.." && pwd)"
 INFRA_DIR="${INFRA_DIR:-$(cd "$APP_DIR/.." && pwd)/MagicTheGatheringInfrastructure}"
-IMAGE_NAME="${IMAGE_NAME:-kriznn/magicthegatheringwebsite:latest}"
+COMMERCE_DIR="${COMMERCE_DIR:-$ROOT_DIR/MagicTheGatheringCommerce}"
+WEBSITE_IMAGE_NAME="${WEBSITE_IMAGE_NAME:-${IMAGE_NAME:-kriznn/magicthegatheringwebsite:latest}}"
+COMMERCE_IMAGE_NAME="${COMMERCE_IMAGE_NAME:-kriznn/magicthegatheringcommerce:latest}"
 STATE_DIR="$APP_DIR/.deploy-state"
-STATE_FILE="$STATE_DIR/website-image.sha256"
 
 PUSH_IMAGE=false
 NO_CACHE=false
@@ -17,8 +19,8 @@ usage() {
     cat <<EOF
 Usage: scripts/restart-website-stack.sh [options]
 
-Builds the Spring jar, rebuilds the website Docker image when app files changed,
-optionally pushes the image, and restarts the Docker Compose stack.
+Builds the Spring jars, rebuilds the website and commerce Docker images when app files changed,
+optionally pushes the images, and restarts the Docker Compose stack.
 
 Options:
   --push              Push IMAGE_NAME after building. Default: false
@@ -29,7 +31,10 @@ Options:
   -h, --help          Show this help
 
 Environment:
-  IMAGE_NAME          Docker image tag. Default: kriznn/magicthegatheringwebsite:latest
+  WEBSITE_IMAGE_NAME  Website Docker image tag. Default: kriznn/magicthegatheringwebsite:latest
+  IMAGE_NAME          Backwards-compatible alias for WEBSITE_IMAGE_NAME
+  COMMERCE_IMAGE_NAME Commerce Docker image tag. Default: kriznn/magicthegatheringcommerce:latest
+  COMMERCE_DIR        Commerce repo path. Default: ../MagicTheGatheringCommerce
   INFRA_DIR           Infrastructure repo path. Default: ../MagicTheGatheringInfrastructure
 EOF
 }
@@ -74,49 +79,117 @@ if [[ ! -f "$INFRA_DIR/docker-compose.yaml" ]]; then
     exit 1
 fi
 
-current_hash() {
+if [[ ! -d "$COMMERCE_DIR" ]]; then
+    echo "Commerce repo not found: $COMMERCE_DIR"
+    exit 1
+fi
+
+if [[ ! -f "$COMMERCE_DIR/pom.xml" || ! -f "$COMMERCE_DIR/Dockerfile" ]]; then
+    echo "Commerce repo must contain pom.xml and Dockerfile: $COMMERCE_DIR"
+    exit 1
+fi
+
+checksum_file() {
+    local file="$1"
+
+    if command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$file"
+        return
+    fi
+
+    sha256sum "$file"
+}
+
+checksum_stdin() {
+    if command -v shasum >/dev/null 2>&1; then
+        shasum -a 256
+        return
+    fi
+
+    sha256sum
+}
+
+repo_hash() {
+    local repo_dir="$1"
+
     (
-        cd "$APP_DIR"
+        cd "$repo_dir"
         {
-            find src -type f | sort
-            find MagicDataRetriever -maxdepth 1 -type f | sort
+            find src -type f 2>/dev/null | sort
+            if [[ -d MagicDataRetriever ]]; then
+                find MagicDataRetriever -maxdepth 1 -type f | sort
+            fi
             printf '%s\n' pom.xml Dockerfile
         } | while IFS= read -r file; do
             if [[ -f "$file" ]]; then
-                shasum -a 256 "$file"
+                checksum_file "$file"
             fi
         done
-    ) | shasum -a 256 | awk '{print $1}'
+    ) | checksum_stdin | awk '{print $1}'
+}
+
+package_repo() {
+    local repo_dir="$1"
+
+    if [[ -x "$repo_dir/mvnw" && -f "$repo_dir/.mvn/wrapper/maven-wrapper.properties" ]]; then
+        (cd "$repo_dir" && ./mvnw -DskipTests clean package)
+        return
+    fi
+
+    if [[ -f "$repo_dir/mvnw.cmd" && -f "$repo_dir/.mvn/wrapper/maven-wrapper.properties" ]]; then
+        (cd "$repo_dir" && ./mvnw.cmd -DskipTests clean package)
+        return
+    fi
+
+    if ! command -v mvn >/dev/null 2>&1; then
+        echo "No complete Maven wrapper found in $repo_dir, and global mvn is not on PATH."
+        echo "Expected wrapper metadata at: $repo_dir/.mvn/wrapper/maven-wrapper.properties"
+        exit 1
+    fi
+
+    (cd "$repo_dir" && mvn -DskipTests clean package)
+}
+
+build_service_if_changed() {
+    local service_name="$1"
+    local repo_dir="$2"
+    local image_name="$3"
+    local state_file="$STATE_DIR/$service_name-image.sha256"
+    local new_hash
+    local old_hash=""
+
+    new_hash="$(repo_hash "$repo_dir")"
+
+    if [[ -f "$state_file" ]]; then
+        old_hash="$(cat "$state_file")"
+    fi
+
+    if [[ "$FORCE_BUILD" == true || "$new_hash" != "$old_hash" ]]; then
+        echo "$service_name changes detected. Packaging and rebuilding $image_name..."
+
+        package_repo "$repo_dir"
+
+        local docker_build_args=(-t "$image_name")
+        if [[ "$NO_CACHE" == true ]]; then
+            docker_build_args=(--no-cache "${docker_build_args[@]}")
+        fi
+
+        (cd "$repo_dir" && docker build "${docker_build_args[@]}" .)
+
+        if [[ "$PUSH_IMAGE" == true ]]; then
+            docker push "$image_name"
+        fi
+
+        printf '%s' "$new_hash" > "$state_file"
+    else
+        echo "No $service_name changes detected. Skipping Maven and Docker build."
+    fi
 }
 
 mkdir -p "$STATE_DIR"
-NEW_HASH="$(current_hash)"
-OLD_HASH=""
 
-if [[ -f "$STATE_FILE" ]]; then
-    OLD_HASH="$(cat "$STATE_FILE")"
-fi
-
-if [[ "$FORCE_BUILD" == true || "$NEW_HASH" != "$OLD_HASH" ]]; then
-    echo "App changes detected. Packaging and rebuilding $IMAGE_NAME..."
-
-    (cd "$APP_DIR" && mvn -DskipTests package)
-
-    DOCKER_BUILD_ARGS=(-t "$IMAGE_NAME")
-    if [[ "$NO_CACHE" == true ]]; then
-        DOCKER_BUILD_ARGS=(--no-cache "${DOCKER_BUILD_ARGS[@]}")
-    fi
-
-    (cd "$APP_DIR" && docker build "${DOCKER_BUILD_ARGS[@]}" .)
-
-    if [[ "$PUSH_IMAGE" == true ]]; then
-        docker push "$IMAGE_NAME"
-    fi
-
-    printf '%s' "$NEW_HASH" > "$STATE_FILE"
-else
-    echo "No app changes detected. Skipping mvn package and docker build."
-fi
+build_service_if_changed "website" "$APP_DIR" "$WEBSITE_IMAGE_NAME"
+build_service_if_changed "commerce" "$COMMERCE_DIR" "$COMMERCE_IMAGE_NAME"
 
 echo "Restarting Docker Compose stack from $INFRA_DIR..."
 
@@ -130,7 +203,14 @@ fi
 
 if [[ "$SEED_DATABASE" == true ]]; then
     echo "Seeding card and store inventory data..."
-    (cd "$APP_DIR/MagicDataRetriever" && python3 databaseIntake.py)
+    if [[ -x "$APP_DIR/MagicDataRetriever/.venv/Scripts/python.exe" ]]; then
+        (cd "$APP_DIR/MagicDataRetriever" && ./.venv/Scripts/python.exe databaseIntake.py)
+    elif [[ -x "$APP_DIR/MagicDataRetriever/.venv/bin/python" ]]; then
+        (cd "$APP_DIR/MagicDataRetriever" && ./.venv/bin/python databaseIntake.py)
+    else
+        (cd "$APP_DIR/MagicDataRetriever" && python3 databaseIntake.py)
+    fi
 fi
 
 echo "Done. Website API should be available at http://localhost:8083"
+echo "Commerce API should be available at http://localhost:8084"
