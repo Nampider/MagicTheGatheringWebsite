@@ -1,0 +1,10 @@
+.git/
+.idea/
+.vscode/
+.mvn/wrapper/maven-wrapper.jar
+target/
+MagicDataRetriever/.venv/
+MagicDataRetriever/__pycache__/
+*.iml
+.env
+.DS_Store
